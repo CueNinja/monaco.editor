@@ -30,7 +30,7 @@ jobs:
           key: monaco.editor-{{ checksum "build.gradle.kts" }}
       - restore_cache:
           key: monaco.editor-repo
-      - run: ./gradlew uploadArchives
+      - run: ./gradlew publish
       - run: tar -cvzf output.tar.gz -C build/mvn-repo .
       - save_cache:
           paths:

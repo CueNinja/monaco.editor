@@ -1,6 +1,8 @@
+import org.gradle.api.tasks.bundling.Jar
+
 plugins {
     kotlin("jvm") version "1.2.30"
-    maven
+    `maven-publish`
 }
 
 group = "ninja.cue"
@@ -14,35 +16,26 @@ dependencies {
     compile(kotlin("stdlib"))
 }
 
-tasks {
-    "uploadArchives"(Upload::class) {
-        repositories {
-            withConvention(MavenRepositoryHandlerConvention::class) {
-                mavenDeployer {
-                    withGroovyBuilder {
-                        "repository"("url" to uri("$buildDir/mvn-repo"))
-                    }
-                    pom.project {
-                        withGroovyBuilder {
-                            "parent" {
-                                "groupId"("ninja.cue")
-                                "artifactId"("monaco.editor")
-                                "version"("0.1-SNAPSHOT")
+val sourcesJar by tasks.creating(Jar::class) {
+    classifier = "sources"
+    from(java.sourceSets["main"].allSource)
+}
 
-                            }
-                            "licenses" {
-                                "license" {
-                                    "name"("The MIT License (MIT)")
-                                    "url"("https://mit-license.org/license.txt")
-                                    "distribution"("repo")
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+publishing {
+    repositories {
+        maven {
+            url = uri("$buildDir/mvn-repo")
         }
     }
+    (publications) {
+        "mavenJava"(MavenPublication::class) {
+            from(components["java"])
+            artifact(sourcesJar)
+        }
+    }
+}
+
+tasks {
     "yarn"(Exec::class) {
         inputs.file("package.json").withPathSensitivity(PathSensitivity.RELATIVE)
         inputs.file("websrc/package.json").withPathSensitivity(PathSensitivity.RELATIVE)
@@ -60,4 +53,4 @@ tasks {
     }
 }
 
-defaultTasks("webpack", "uploadArchives")
+defaultTasks("webpack", "publish")
