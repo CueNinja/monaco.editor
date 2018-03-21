@@ -42,6 +42,13 @@ jobs:
           key: monaco.editor-repo
       - store_artifacts:
           path: output.tar.gz
+  trigger:
+    working_directory: ~/monaco.editor
+    docker:
+      - image: circleci/node:9
+    steps:
+      - checkout
+      - run: ./trigger_upstream.sh
 workflows:
   version: 2
   build:
@@ -50,3 +57,6 @@ workflows:
       - build:
           requires:
             - webpack
+      - trigger:
+          requires:
+            - build
