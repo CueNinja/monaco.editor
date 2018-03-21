@@ -15,6 +15,7 @@ jobs:
             - websrc/node_modules
           key: monaco.editor-node-modules-{{ checksum "websrc/package.json" }}
       - persist_to_workspace:
+          root: ~/monaco.editor
           paths:
             - src/main/resources/ninja/cue/monaco
   build:
@@ -24,7 +25,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: src/main/resources/ninja/cue/monaco
+          at: ~/monaco.editor
       - restore_cache:
           key: monaco.editor-{{ checksum "build.gradle.kts" }}
       - restore_cache:
