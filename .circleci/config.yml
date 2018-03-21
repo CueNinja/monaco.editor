@@ -1,0 +1,24 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/monaco.editor
+    docker:
+      - image: wtanaka/ubuntu-1604-oracle-java-9
+    steps:
+      - checkout
+      - restore_cache:
+          key: monaco.editor-{{ checksum "build.gradle.kts" }}
+      - restore_cache:
+          key: monaco-editor-repo
+      - run: ./gradlew
+      - run: tar -cvzf output.tar.gz -C build/mvn-repo ../
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: monaco.editor-{{ checksum "build.gradle.kts" }}
+      - save_cache:
+          paths:
+            - target/mvn-repo
+          key: Javafx-WebView-Debugger-repo
+      - store_artifacts:
+          path: output.tar.gz
