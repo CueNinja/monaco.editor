@@ -1,12 +1,12 @@
 import org.gradle.api.tasks.bundling.Jar
 
 plugins {
-    kotlin("jvm") version "1.2.30"
+    kotlin("jvm") version "1.2.31"
     `maven-publish`
 }
 
 group = "ninja.cue"
-version = "0.1-SNAPSHOT"
+version = "0.2-SNAPSHOT"
 
 repositories {
     mavenCentral()
