@@ -36,6 +36,7 @@ class MonacoEditor extends React.Component {
     }
     render() {
         this.editor?.setValue(this.props.content)
+        this.editor?.setTheme(this.props?.options?.theme || "vs")
         return (
             <div style={{height: '100%', overflow: 'hidden'}}>
                 <ReactResizeDetector handleWidth handleHeight onResize={::this.onResize}/>

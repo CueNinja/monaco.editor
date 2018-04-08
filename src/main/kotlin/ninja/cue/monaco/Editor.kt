@@ -10,6 +10,7 @@ class Monaco : BorderPane() {
     private var window: JSObject? = null
     private var _content = ""
     private var _language = ""
+    private var _theme = ""
     init {
         center = webView
         webView.engine.load(javaClass.getResource("index.html").toExternalForm())
@@ -35,6 +36,15 @@ class Monaco : BorderPane() {
 
     fun getLanguage(): String {
         return _language
+    }
+
+    fun setTheme(value: String) {
+        window?.call("setTheme", value)
+        _theme = value
+    }
+
+    fun getTheme(): String {
+        return _theme
     }
 
     fun contentChanged(value: String) {
