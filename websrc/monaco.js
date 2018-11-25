@@ -1,7 +1,14 @@
 import React from 'react';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { load as loadMonaco } from './monacoProvider';
+import 'monaco-editor/esm/vs/editor/editor.all.js';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
+
+import 'monaco-editor/esm/vs/language/typescript/monaco.contribution';
+import 'monaco-editor/esm/vs/language/css/monaco.contribution';
+import 'monaco-editor/esm/vs/language/json/monaco.contribution';
+import 'monaco-editor/esm/vs/language/html/monaco.contribution';
+import 'monaco-editor/esm/vs/basic-languages/monaco.contribution.js';
 
 class MonacoEditor extends React.Component {
     constructor(props) {
@@ -15,8 +22,7 @@ class MonacoEditor extends React.Component {
       this.setState({width, height});
       this.editor?.render();
     }
-    async componentDidMount() {
-        const monaco = await loadMonaco()
+    componentDidMount() {
         if (!!this.props.theme) {
             monaco.editor.defineTheme(this.props.theme.key, this.props.theme);
             monaco.editor.setTheme(this.props.theme.key);

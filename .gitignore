@@ -11,5 +11,5 @@ todoItems.json
 .DS_Store
 */.cache/**
 *error.log
-websrc/node_modules/**
+node_modules
 src/main/resources/ninja/cue/monaco/**

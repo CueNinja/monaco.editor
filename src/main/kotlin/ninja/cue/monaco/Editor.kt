@@ -12,6 +12,7 @@ class Monaco : BorderPane() {
     private var _language = ""
     private var _theme = ""
     init {
+        webView.engine.isJavaScriptEnabled = true
         center = webView
         webView.engine.load(javaClass.getResource("index.html").toExternalForm())
         window = webView.engine.executeScript("window") as JSObject

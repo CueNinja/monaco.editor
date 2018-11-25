@@ -1,27 +1,9 @@
 version: 2
 jobs:
-  webpack:
-    working_directory: ~/monaco.editor
-    docker:
-      - image: circleci/node
-    steps:
-      - checkout
-      - restore_cache:
-          key: monaco.editor-node-modules-{{ checksum "websrc/package.json" }}
-      - run: yarn
-      - run: yarn run dist
-      - save_cache:
-          paths:
-            - websrc/node_modules
-          key: monaco.editor-node-modules-{{ checksum "websrc/package.json" }}
-      - persist_to_workspace:
-          root: ~/monaco.editor
-          paths:
-            - src/main/resources/ninja/cue/monaco
   build:
     working_directory: ~/monaco.editor
     docker:
-      - image: wtanaka/ubuntu-1604-oracle-java-9
+      - image: circleci/openjdk:11-node
     steps:
       - checkout
       - attach_workspace:
@@ -29,13 +11,19 @@ jobs:
       - restore_cache:
           key: monaco.editor-{{ checksum "build.gradle.kts" }}
       - restore_cache:
+          key: monaco.editor-node-modules-{{ checksum "websrc/package.json" }}
+      - restore_cache:
           key: monaco.editor-repo
-      - run: ./gradlew publish
+      - run: ./gradlew
       - run: tar -cvzf output.tar.gz -C build/mvn-repo .
       - save_cache:
           paths:
             - ~/.gradle
           key: monaco.editor-{{ checksum "build.gradle.kts" }}
+      - save_cache:
+          paths:
+            - websrc/node_modules
+          key: monaco.editor-node-modules-{{ checksum "websrc/package.json" }}
       - save_cache:
           paths:
             - build/mvn-repo
@@ -53,10 +41,7 @@ workflows:
   version: 2
   build:
     jobs:
-      - webpack
-      - build:
-          requires:
-            - webpack
+      - build
       - trigger:
           requires:
             - build

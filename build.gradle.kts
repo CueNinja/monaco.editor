@@ -1,12 +1,17 @@
 import org.gradle.api.tasks.bundling.Jar
 
 plugins {
-    kotlin("jvm") version "1.2.31"
+    kotlin("jvm") version "1.3.10"
     `maven-publish`
+    id("org.openjfx.javafxplugin") version "0.0.5"
+}
+
+javafx {
+    modules = List(1) { "javafx.web" }
 }
 
 group = "ninja.cue"
-version = "0.3-SNAPSHOT"
+version = "0.4-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -16,41 +21,35 @@ dependencies {
     compile(kotlin("stdlib"))
 }
 
-val sourcesJar by tasks.creating(Jar::class) {
-    classifier = "sources"
-    from(java.sourceSets["main"].allSource)
-}
-
 publishing {
+    publications {
+        register(name=group as String, type=MavenPublication::class) {
+            from(components["java"])
+        }
+    }
     repositories {
         maven {
             url = uri("$buildDir/mvn-repo")
         }
     }
-    (publications) {
-        "mavenJava"(MavenPublication::class) {
-            from(components["java"])
-            artifact(sourcesJar)
-        }
-    }
 }
 
 tasks {
-    "yarn"(Exec::class) {
-        inputs.file("package.json").withPathSensitivity(PathSensitivity.RELATIVE)
-        inputs.file("websrc/package.json").withPathSensitivity(PathSensitivity.RELATIVE)
-        inputs.file("websrc/yarn.lock").withPathSensitivity(PathSensitivity.RELATIVE)
-        outputs.dir("websrc/node_modules")
+    val yarn by registering(Exec::class) {
+        inputs.file("$projectDir/package.json")
+        inputs.file("$projectDir/websrc/package.json")
+        inputs.file("$projectDir/websrc/yarn.lock")
+        outputs.dir("$projectDir/websrc/node_modules")
         commandLine("yarn")
     }
-    "webpack"(Exec::class) {
-        inputs.file("package.json").withPathSensitivity(PathSensitivity.RELATIVE)
-        inputs.file("websrc/package.json").withPathSensitivity(PathSensitivity.RELATIVE)
-        inputs.dir("websrc").withPathSensitivity(PathSensitivity.RELATIVE)
-        outputs.dir("src/main/resources/ninja/cue/views/monaco")
-        dependsOn("yarn")
-        commandLine("yarn", "run", "dist")
+    register(name="parcel", type=Exec::class) {
+        inputs.file("$projectDir/package.json")
+        inputs.file("$projectDir/websrc/package.json")
+        inputs.dir("$projectDir/websrc")
+        outputs.dir("$projectDir/src/main/resources/ninja/cue/views/monaco")
+        dependsOn(yarn)
+        commandLine("yarn", "dist")
     }
 }
 
-defaultTasks("webpack", "publish")
+defaultTasks("build", "parcel", "publish")
